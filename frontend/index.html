@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Food Label Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Core Logic (Loaded before app.js) -->
+    <script src="../src/data.js"></script>
+    <script src="../src/analyzer.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Smart Food Label Analyzer</h1>
+            <p class="subtitle">
+                Scan a food label to reveal hidden health facts.
+            </p>
+        </header>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-box">
+                <input type="file" id="fileInput" accept="image/*" capture="environment" hidden>
+                <label for="fileInput" class="upload-label">
+                    <span class="icon">📷</span>
+                    <span>Take Photo / Upload</span>
+                </label>
+            </div>
+            <p class="hint">Supports .jpg, .png</p>
+        </div>
+
+        <!-- Preview Section (Hidden initially) -->
+        <div id="previewSection" class="preview-section hidden">
+            <img id="imagePreview" src="" alt="Label Preview">
+            <button id="analyzeBtn" class="analyze-btn">Analyze Label</button>
+            <button id="resetBtn" class="text-btn">Remove Image</button>
+        </div>
+
+        <!-- Simulation Control (For Demo Purposes) -->
+        <div class="simulation-control">
+            <label for="productSelect">👇 (Demo) Mock Result:</label>
+            <select id="productSelect">
+                <!-- Filled by JS -->
+            </select>
+        </div>
+
+        <!-- Loading Spinner (Hidden initially) -->
+        <div id="loadingSection" class="loading-section hidden">
+            <div class="spinner"></div>
+            <p>Scanning Label...</p>
+        </div>
+
+        <!-- Result Section (Hidden initially) -->
+        <div id="resultSection" class="result-section hidden">
+            <div class="score-card">
+                <div id="trafficLight" class="traffic-light"></div>
+                <div class="score-info">
+                    <h2>Health Score: <span id="scoreValue">--</span>/100</h2>
+                    <p id="healthText" class="health-status">Result text...</p>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="details-box warning-box">
+                    <h3>⚠️ Areas of Concern</h3>
+                    <ul id="warningsList">
+                        <!-- Warnings here -->
+                    </ul>
+                </div>
+                <div class="details-box good-box">
+                    <h3>✅ Positives</h3>
+                    <ul id="goodPointsList">
+                        <!-- Good points here -->
+                    </ul>
+                </div>
+            </div>
+
+            <button id="scanAgainBtn" class="analyze-btn secondary">Scan Another</button>
+        </div>
+
+    </div>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>
