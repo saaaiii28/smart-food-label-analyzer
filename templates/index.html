@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Food Label Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Flask Static CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Smart Food Label Analyzer</h1>
+            <p class="subtitle">
+                Scan a food label to reveal hidden health facts.
+            </p>
+        </header>
+
+        <!-- Upload Section (UI Only - OCR Phase Later) -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-box">
+                <input type="file" id="fileInput" accept="image/*" hidden>
+                <label for="fileInput" class="upload-label">
+                    <span class="icon">📷</span>
+                    <span>Take Photo / Upload</span>
+                </label>
+            </div>
+            <p class="hint">Supports .jpg, .png</p>
+        </div>
+
+        <!-- Preview Section -->
+        <div id="previewSection" class="preview-section hidden">
+            <img id="imagePreview" src="" alt="Label Preview">
+            <button id="analyzeBtn" class="analyze-btn">Analyze Label</button>
+            <button id="resetBtn" class="text-btn">Remove Image</button>
+        </div>
+
+        <!-- Simulated OCR Dropdown -->
+        <div class="simulation-control">
+            <label for="productSelect">
+                👇 Simulated OCR Result:
+            </label>
+
+            <select id="productSelect">
+                {% for product in products %}
+                <option value="{{ product }}">{{ product }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSection" class="loading-section hidden">
+            <div class="spinner"></div>
+            <p>Analyzing Nutritional Interactions...</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultSection" class="result-section hidden">
+
+            <div class="score-card">
+
+                <div class="health-bar-container">
+                    <div class="health-bar-labels">
+                        <span>Risky</span>
+                        <span>Moderate</span>
+                        <span>Safe</span>
+                    </div>
+
+                    <div class="health-bar-track">
+                        <div id="healthMarker" class="health-bar-marker"></div>
+                    </div>
+                </div>
+
+                <div class="score-info">
+                    <h2>Health Score: <span id="scoreValue">--</span>/100</h2>
+                    <p id="healthText" class="health-status">
+                        Select a product to analyze.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="details-grid">
+
+                <div class="details-box warning-box">
+                    <h3>⚠️ Areas of Concern</h3>
+                    <ul id="warningsList">
+                        <!-- Filled dynamically later -->
+                    </ul>
+                </div>
+
+                <div class="details-box good-box">
+                    <h3>✅ Positives</h3>
+                    <ul id="goodPointsList">
+                        <!-- Filled dynamically later -->
+                    </ul>
+                </div>
+
+            </div>
+
+            <button id="scanAgainBtn" class="analyze-btn secondary">
+                Scan Another
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Flask Static JS -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+
+</html>
