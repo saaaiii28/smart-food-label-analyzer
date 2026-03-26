@@ -59,16 +59,12 @@ body::before {
 }
 
 .container {
-    background: var(--card-bg);
     width: 100%;
     max-width: 500px;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(33, 150, 243, 0.1);
-    text-align: center;
+    padding: 20px;
     position: relative;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
+    text-align: center;
+    /* Wrapper is transparent, children are styled cards */
 }
 
 .hidden {
@@ -368,4 +364,147 @@ li {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* New UI Enhancements */
+.screen {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.nutrition-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+.nutrition-form .input-group:last-child {
+    grid-column: span 2;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.input-group input {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.raw-text-container {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.raw-text-container label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#rawOCRText {
+    width: 100%;
+    height: 80px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: #64748b;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    resize: vertical;
+}
+
+.status-box {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 2px solid transparent;
+    text-align: center;
+}
+
+.status-safe {
+    background: rgba(46, 204, 113, 0.1);
+    border-color: var(--traffic-green);
+    color: var(--traffic-green);
+}
+
+.status-moderate {
+    background: rgba(241, 196, 15, 0.1);
+    border-color: var(--traffic-yellow);
+    color: var(--traffic-yellow);
+}
+
+.status-risky {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: var(--traffic-red);
+    color: var(--traffic-red);
+}
+
+.status-box h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.health-score-label {
+    text-align: center;
+    font-weight: 600;
+    margin-top: 15px;
+    color: var(--text-color);
+}
+
+.glass-card {
+    background: rgba(15, 23, 36, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.primary-verdict {
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: scale(1.02);
+}
+
+.primary-verdict h2 {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.secondary-card {
+    background: rgba(15, 23, 36, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.02) !important;
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+ul#explanationsList {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+ul#explanationsList li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }

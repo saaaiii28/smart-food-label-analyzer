@@ -1,18 +1,15 @@
 def calculate_scores(data):
 
-    rule_columns = [
-        "rule1_high_sugar_satfat",
-        "rule2_high_sodium",
-        "rule3_transfat_sugar",
-        "rule4_low_fiber_high_sugar",
-        "rule5_ultra_processed"
+    rule_cols = [
+        "rule_high_sugar_fat",
+        "rule_high_sodium",
+        "rule_transfat_sugar",
+        "rule_low_fiber_sugar"
     ]
 
-    # Count triggered rules
-    data["interaction_score"] = data[rule_columns].sum(axis=1)
+    data["interaction_score"] = data[rule_cols].sum(axis=1)
 
-    # Assign risk label
-    def assign_risk(score):
+    def assign_label(score):
         if score >= 3:
             return "Risky"
         elif score >= 1:
@@ -20,12 +17,16 @@ def calculate_scores(data):
         else:
             return "Safe"
 
-    data["risk_label"] = data["interaction_score"].apply(assign_risk)
+    data["risk_label"] = data["interaction_score"].apply(assign_label)
 
-    # Health score (out of 100)
-    data["health_score"] = 100 - (data["interaction_score"] * 15)
+    def map_score(label):
+        if label == "Safe":
+            return 90
+        elif label == "Moderate":
+            return 65
+        else:
+            return 40
 
-    # Prevent negative scores
-    data["health_score"] = data["health_score"].clip(lower=0)
+    data["health_score"] = data["risk_label"].apply(map_score)
 
     return data
