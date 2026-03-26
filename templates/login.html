@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Food Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-btn {
+            background-color: #4285F4;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background-color: #3367D6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+        <div class="screen glass-card" style="padding: 40px; border-radius: 16px; text-align: center; max-width: 400px; width: 100%;">
+            <h1 style="margin-bottom: 10px;">Welcome Back</h1>
+            <p class="subtitle" style="margin-bottom: 30px;">Sign in to assess your food's health impact</p>
+            
+            <a href="/login" class="login-btn">
+                Continue with Google
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

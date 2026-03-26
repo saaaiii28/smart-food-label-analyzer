@@ -1,97 +1,269 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import pandas as pd
-from rules import apply_rules
-from scoring import calculate_scores
 
-app = Flask(
-    __name__,
-    template_folder="../templates",
-    static_folder="../static"
+from flask_dance.contrib.google import make_google_blueprint, google
+
+from parser import *
+from ocr import *
+from rules import *
+from scoring import *
+from ingredient import *
+from model import load_model
+
+import os
+
+app = Flask(__name__, template_folder="../templates", static_folder="../static")
+app.secret_key = "supersecretkey"
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+# 🔐 GOOGLE LOGIN (SECURE VERSION)
+google_bp = make_google_blueprint(
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    scope=[
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+    ]
 )
 
-# ============================
-# Load Dataset
-# ============================
-data = pd.read_csv("data/food_dataset.csv", encoding="latin1")
+# ✅ Safety check
+if not os.getenv("GOOGLE_CLIENT_ID") or not os.getenv("GOOGLE_CLIENT_SECRET"):
+    raise Exception("Google OAuth credentials not set in environment variables")
 
-# Apply Rule Engine
-data = apply_rules(data)
+app.register_blueprint(google_bp, url_prefix="/login")
 
-# Apply Scoring System
-data = calculate_scores(data)
+model, scaler = load_model()
 
+from personalization import *
 
-# ============================
-# Home Route
-# ============================
+# LOGIN PAGE
+@app.route("/login-page")
+def login_page():
+    return render_template("login.html")
+
+# HOME (Redirects based on profile setup)
 @app.route("/")
 def home():
-    products = data["food"].head(100).tolist()
-    return render_template("index.html", products=products)
+    if not google.authorized:
+        return redirect("/login-page")
 
+    resp = google.get("/oauth2/v2/userinfo")
+    user_info = resp.json()
 
-# ============================
-# Analyze Route
-# ============================
-@app.route("/analyze", methods=["POST"])
-def analyze():
+    email = user_info.get("email", "")
+    if not email.endswith("@gmail.com"):
+        return "Only Gmail allowed"
 
-    product_name = request.json["food"]
+    session["user"] = email
+    
+    if "profile" not in session:
+        return redirect("/profile")
+    return redirect("/dashboard")
 
-    product = data[data["food"] == product_name]
+# PROFILE SETUP
+@app.route("/profile")
+def profile_page():
+    if "user" not in session: 
+        return redirect("/login-page")
+    return render_template("profile.html", user=session["user"])
 
-    if product.empty:
-        return jsonify({"error": "Product not found"}), 404
+@app.route("/api/save-profile", methods=["POST"])
+def save_profile():
+    if "user" not in session: 
+        return jsonify({"error": "Not logged in"})
+    session["profile"] = request.json
+    return jsonify({"success": True})
 
-    product = product.iloc[0]
+# DASHBOARD
+@app.route("/dashboard")
+def dashboard():
+    if "user" not in session: 
+        return redirect("/login-page")
+    if "profile" not in session: 
+        return redirect("/profile")
+    return render_template("dashboard.html", user=session["user"])
 
-    explanations = []
+# SINGLE PRODUCT ANALYSIS VIEW
+@app.route("/single")
+def single_product():
+    if "user" not in session: 
+        return redirect("/login-page")
+    return render_template("index.html", user=session["user"])
 
-    # Rule 1
-    if product["rule1_high_sugar_satfat"] == 1:
-        explanations.append(
-            "Interaction: High Sugar + High Saturated Fat may increase insulin resistance and long-term cardiovascular risk."
-        )
+# COMBINED PRODUCT ANALYSIS VIEW
+@app.route("/compare")
+def compare_page():
+    if "user" not in session: 
+        return redirect("/login-page")
+    return render_template("compare.html", user=session["user"])
 
-    # Rule 2
-    if product["rule2_high_sodium"] == 1:
-        explanations.append(
-            "Elevated Sodium levels may contribute to hypertension and increased cardiovascular strain."
-        )
+# LOGIN TRIGGER
+@app.route("/login")
+def login():
+    return redirect(url_for("google.login"))
 
-    # Rule 3
-    if product["rule3_transfat_sugar"] == 1:
-        explanations.append(
-            "Trans Fat combined with Sugar significantly increases risk of metabolic imbalance and arterial inflammation."
-        )
+# LOGOUT
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login-page")
 
-    # Rule 4
-    if product["rule4_low_fiber_high_sugar"] == 1:
-        explanations.append(
-            "Low Fiber reduces digestive regulation, and when combined with High Sugar may cause rapid blood glucose spikes."
-        )
+# STEP 1: OCR
+@app.route("/extract-text", methods=["POST"])
+def extract_text_api():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"})
 
-    # Rule 5
-    if product["rule5_ultra_processed"] == 1:
-        explanations.append(
-            "High Additive count suggests ultra-processed food profile, which is associated with long-term metabolic stress."
-        )
+    file = request.files["image"]
+    file.save("temp.jpg")
 
-    # If no harmful interactions
-    if len(explanations) == 0:
-        explanations.append(
-            "No major harmful nutrient interaction patterns detected."
-        )
+    text = extract_text("temp.jpg")
+
+    nutrition = parse_nutrition(text)
+    ingredients = extract_ingredients(text)
 
     return jsonify({
-        "health_score": int(product["health_score"]),
-        "risk_label": product["risk_label"],
-        "explanations": explanations
+        "nutrition": {
+            **nutrition,
+            "ingredients": ", ".join(ingredients)
+        },
+        "raw_text": text
     })
 
+# STEP 2: SINGLE ANALYSIS
+@app.route("/analyze-nutrition", methods=["POST"])
+def analyze_nutrition():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"})
 
-# ============================
-# Run App
-# ============================
+    data = request.json
+    nutrition = data["nutrition"]
+
+    df = pd.DataFrame([{
+        "sugar": float(nutrition.get("sugar", 0)),
+        "sat_fat": float(nutrition.get("sat_fat", 0)),
+        "sodium": float(nutrition.get("sodium", 0)),
+        "fiber": float(nutrition.get("fiber", 0)),
+        "trans_fat": float(nutrition.get("trans_fat", 0)),
+        "additive_count": 2
+    }])
+
+    df = apply_rules(df)
+    df = calculate_scores(df)
+    result = df.iloc[0]
+
+    # ML
+    X = [[
+        df["sugar"][0], df["sat_fat"][0], df["sodium"][0],
+        df["fiber"][0], df["trans_fat"][0]
+    ]]
+    X_scaled = scaler.transform(X)
+    ml_prediction = model.predict(X_scaled)[0]
+    ml_confidence = min(float(model.predict_proba(X_scaled)[0].max()), 0.92)
+
+    # INGREDIENTS
+    ingredients_list = [i.strip() for i in nutrition.get("ingredients", "").lower().split(",")]
+    ingredient_insights = []
+    for ing in ingredients_list:
+        for key in ingredient_risks:
+            if key in ing:
+                ingredient_insights.append({
+                    "ingredient": ing,
+                    "risk": ingredient_risks[key]
+                })
+
+    # EXPLANATIONS
+    explanations = []
+    if result["rule_high_sugar_fat"]: explanations.append("High sugar + high fat combination")
+    if result["rule_high_sodium"]: explanations.append("High sodium level")
+    if result["rule_transfat_sugar"]: explanations.append("Trans fat + sugar risk")
+    if result["rule_low_fiber_sugar"]: explanations.append("Low fiber + sugar risk")
+    if not explanations: explanations.append("No major harmful interactions")
+
+    # PERSONALIZED
+    profile = session.get("profile", {})
+    personalized = get_personalized_insights(nutrition, ingredients_list, profile)
+
+    return jsonify({
+        "health_score": int(result["health_score"]),
+        "rule_based": result["risk_label"],
+        "ml_prediction": ml_prediction,
+        "ml_confidence": round(ml_confidence * 100, 2),
+        "explanations": explanations,
+        "ingredient_insights": ingredient_insights,
+        "personalized_insights": personalized
+    })
+
+# COMBINATION ANALYSIS
+@app.route("/analyze-combination", methods=["POST"])
+def analyze_combination():
+    if "user" not in session: 
+        return jsonify({"error": "Not logged in"})
+    
+    data = request.json
+    item_a = data.get("item_a", {})
+    item_b = data.get("item_b", {})
+    
+    def process_item(nut):
+        df = pd.DataFrame([{
+            "sugar": float(nut.get("sugar", 0)),
+            "sat_fat": float(nut.get("sat_fat", 0)),
+            "sodium": float(nut.get("sodium", 0)),
+            "fiber": float(nut.get("fiber", 0)),
+            "trans_fat": float(nut.get("trans_fat", 0)),
+            "additive_count": 2
+        }])
+        df = apply_rules(df)
+        df = calculate_scores(df)
+        return df.iloc[0]["risk_label"]
+
+    verdict_a = process_item(item_a)
+    verdict_b = process_item(item_b)
+
+    combined_nut = {
+        "sugar": float(item_a.get("sugar", 0)) + float(item_b.get("sugar", 0)),
+        "sat_fat": float(item_a.get("sat_fat", 0)) + float(item_b.get("sat_fat", 0)),
+        "sodium": float(item_a.get("sodium", 0)) + float(item_b.get("sodium", 0)),
+        "fiber": float(item_a.get("fiber", 0)) + float(item_b.get("fiber", 0)),
+        "trans_fat": float(item_a.get("trans_fat", 0)) + float(item_b.get("trans_fat", 0)),
+        "additive_count": 4
+    }
+    
+    df_c = pd.DataFrame([combined_nut])
+    df_c = apply_rules(df_c)
+    df_c = calculate_scores(df_c)
+    combined_result = df_c.iloc[0]
+    
+    ing_a = [i.strip() for i in item_a.get("ingredients", "").lower().split(",") if i.strip()]
+    ing_b = [i.strip() for i in item_b.get("ingredients", "").lower().split(",") if i.strip()]
+    all_ingredients = list(set(ing_a + ing_b))
+
+    ingredient_insights = []
+    for ing in all_ingredients:
+        for key in ingredient_risks:
+            if key in ing:
+                ingredient_insights.append({"ingredient": ing, "risk": ingredient_risks[key]})
+                
+    profile = session.get("profile", {})
+    combo_insights = get_combination_insights(item_a, item_b, all_ingredients, profile)
+    
+    explanations = []
+    if combined_result["rule_high_sugar_fat"]: explanations.append("High combined sugar + high fat")
+    if combined_result["rule_high_sodium"]: explanations.append("High combined sodium load")
+    if combined_result["rule_transfat_sugar"]: explanations.append("Trans fat + sugar risk in combination")
+    if combined_result["rule_low_fiber_sugar"]: explanations.append("Low fiber + sugar risk in combination")
+    if not explanations: explanations.append("No major harmful combined interactions")
+
+    return jsonify({
+        "verdict_a": verdict_a,
+        "verdict_b": verdict_b,
+        "combined_verdict": combined_result["risk_label"],
+        "combined_score": int(combined_result["health_score"]),
+        "explanations": explanations,
+        "ingredient_insights": ingredient_insights,
+        "personalized_insights": combo_insights
+    })
+
 if __name__ == "__main__":
     app.run(debug=True)

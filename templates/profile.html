@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize Your Health Insights</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .form-group { text-align: left; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #e2e8f0; }
+        .chip-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .chip {
+            padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 20px;
+            background: rgba(255,255,255,0.05); color: #cbd5e1; cursor: pointer; transition: 0.2s;
+        }
+        .chip.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        select {
+            width: 100%; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.2); 
+            border: 1px solid var(--border-color); color: white; font-size: 1rem; outline: none;
+        }
+        select option { background: #0f172a; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+        <div class="screen glass-card" style="padding: 40px; border-radius: 16px; max-width: 500px; width: 100%;">
+            <h1 style="margin-bottom: 5px;">Personalize Your Profile</h1>
+            <p class="subtitle" style="margin-bottom: 25px;">Help us tailor food insights to your body.</p>
+            
+            <div class="form-group">
+                <label>Do you have any of these conditions?</label>
+                <div class="chip-group" id="conditions-group">
+                    <div class="chip" data-val="Diabetes">Diabetes</div>
+                    <div class="chip" data-val="Heart Disease">Heart Disease</div>
+                    <div class="chip" data-val="Hypertension">Hypertension</div>
+                    <div class="chip selected" data-val="None">None</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>What is your primary goal?</label>
+                <select id="goal-select">
+                    <option value="Maintain Health">Maintain Health</option>
+                    <option value="Weight Loss">Weight Loss</option>
+                    <option value="Muscle Gain">Muscle Gain</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Dietary preference:</label>
+                <select id="diet-select">
+                    <option value="Non-Vegetarian">Non-Vegetarian</option>
+                    <option value="Vegetarian">Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                </select>
+            </div>
+
+            <button id="btnSave" class="analyze-btn" style="margin-top: 20px; width: 100%;">Save & Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const chips = document.querySelectorAll('.chip');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const val = chip.getAttribute('data-val');
+                if (val === 'None') {
+                    chips.forEach(c => c.classList.remove('selected'));
+                    chip.classList.add('selected');
+                } else {
+                    document.querySelector('.chip[data-val="None"]').classList.remove('selected');
+                    chip.classList.toggle('selected');
+                    const selected = document.querySelectorAll('.chip.selected:not([data-val="None"])');
+                    if (selected.length === 0) {
+                        document.querySelector('.chip[data-val="None"]').classList.add('selected');
+                    }
+                }
+            });
+        });
+
+        document.getElementById('btnSave').addEventListener('click', async () => {
+            document.getElementById('btnSave').innerText = "Working...";
+            const conditions = Array.from(document.querySelectorAll('.chip.selected')).map(c => c.getAttribute('data-val')).filter(v => v !== 'None');
+            const goal = document.getElementById('goal-select').value;
+            const diet = document.getElementById('diet-select').value;
+
+            const res = await fetch('/api/save-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conditions, goal, diet })
+            });
+            if (res.ok) { window.location.href = '/dashboard'; }
+        });
+    </script>
+</body>
+</html>
