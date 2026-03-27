@@ -13,6 +13,7 @@
         <!-- STEP 0: Upload Screen -->
         <div id="step-upload" class="screen glass-card" style="padding: 25px; border-radius: 16px;">
             <h1>Smart Food Label Analyzer</h1>
+            <div id="uploadError" class="upload-error-message hidden"></div>
             <p class="subtitle">Upload a nutrition label to instantly assess its health impact</p>
             
             <div class="upload-box" id="dropzone">
@@ -36,6 +37,10 @@
             <p class="subtitle">Review and edit the extracted values</p>
             
             <form id="nutritionForm" class="nutrition-form">
+                <div class="input-group">
+                    <label>Calories (kcal)</label>
+                    <input type="number" id="val-calories" step="1" required>
+                </div>
                 <div class="input-group">
                     <label>Sugar (g)</label>
                     <input type="number" id="val-sugar" step="0.1" required>

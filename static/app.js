@@ -36,7 +36,18 @@ imageUpload.addEventListener("change", async (e) => {
         });
         const data = await res.json();
         
+        const errorDiv = document.getElementById("uploadError");
+        if (data.error) {
+            errorDiv.innerText = "❌ " + data.error;
+            errorDiv.classList.remove("hidden");
+            imageUpload.value = ""; // Clear file
+            return;
+        } else {
+            errorDiv.classList.add("hidden");
+        }
+        
         // Populate Step 1 (Confirm)
+        document.getElementById("val-calories").value = data.nutrition.calories || 0;
         document.getElementById("val-sugar").value = data.nutrition.sugar || 0;
         document.getElementById("val-sat_fat").value = data.nutrition.sat_fat || 0;
         document.getElementById("val-sodium").value = data.nutrition.sodium || 0;
@@ -63,6 +74,7 @@ btnConfirm.addEventListener("click", async () => {
     loadingAnalyze.classList.remove("hidden");
 
     const nutrition = {
+        calories: parseFloat(document.getElementById("val-calories").value) || 0,
         sugar: parseFloat(document.getElementById("val-sugar").value) || 0,
         sat_fat: parseFloat(document.getElementById("val-sat_fat").value) || 0,
         sodium: parseFloat(document.getElementById("val-sodium").value) || 0,

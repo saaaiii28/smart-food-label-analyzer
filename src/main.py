@@ -48,8 +48,13 @@ def home():
     if not google.authorized:
         return redirect("/login-page")
 
-    resp = google.get("/oauth2/v2/userinfo")
-    user_info = resp.json()
+    from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+    try:
+        resp = google.get("/oauth2/v2/userinfo")
+        user_info = resp.json()
+    except TokenExpiredError:
+        session.clear()
+        return redirect(url_for("google.login"))
 
     email = user_info.get("email", "")
     if not email.endswith("@gmail.com"):
@@ -119,6 +124,9 @@ def extract_text_api():
     file.save("temp.jpg")
 
     text = extract_text("temp.jpg")
+
+    if text == "Image is too blurry":
+        return jsonify({"error": "Image is too blurry"}), 400
 
     nutrition = parse_nutrition(text)
     ingredients = extract_ingredients(text)
