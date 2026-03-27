@@ -1,86 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare Products - Smart Food Analyzer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .product-col { padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px; }
-        .nav-link { position: absolute; top: 20px; left: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; }
-        .nav-link:hover { color: white; }
+        .split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .product-col {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .nav-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
     </style>
 </head>
+
 <body>
     <a href="/dashboard" class="nav-link">&larr; Back to Dashboard</a>
     <div class="container" style="max-width: 900px;">
-        
+
         <div id="step-upload" class="screen glass-card" style="padding: 25px; border-radius: 16px;">
             <h1>Combination Analysis</h1>
-            <p class="subtitle">Enter the nutrition facts for two products to see their combined impact on your health profile.</p>
+            <p class="subtitle">Enter the nutrition facts for two products to see their combined impact on your health
+                profile.</p>
 
             <div class="split-grid">
                 <!-- PRODUCT A -->
                 <div class="product-col">
                     <h3>Product A (Values / serving)</h3>
                     <div style="margin-bottom: 15px; text-align: center;">
-                        <label for="imgA" style="cursor: pointer; color: var(--primary-color);">📸 <u>Upload Label A (OCR)</u></label>
+                        <label for="imgA" style="cursor: pointer; color: var(--primary-color);">📸 <u>Upload Label A
+                                (OCR)</u></label>
                         <input type="file" id="imgA" class="hidden" accept="image/*">
-                        <div id="loadingA" class="hidden" style="font-size: 0.85rem; color: #94a3b8; margin-top: 5px;">Extracting...</div>
+                        <div id="loadingA" class="hidden" style="font-size: 0.85rem; color: #94a3b8; margin-top: 5px;">
+                            Extracting...</div>
                     </div>
-                    <div class="input-group"><label>Sugar (g)</label><input type="number" id="a-sugar" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Sat Fat (g)</label><input type="number" id="a-sat_fat" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Sodium (mg)</label><input type="number" id="a-sodium" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Fiber (g)</label><input type="number" id="a-fiber" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Trans Fat</label><input type="number" id="a-trans_fat" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Ingredients</label><textarea id="a-ingredients" rows="2" style="width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.2); color: white; border: 1px solid var(--border-color);"></textarea></div>
+                    <div class="input-group"><label>Sugar (g)</label><input type="number" id="a-sugar" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Sat Fat (g)</label><input type="number" id="a-sat_fat" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Sodium (mg)</label><input type="number" id="a-sodium" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Fiber (g)</label><input type="number" id="a-fiber" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Trans Fat</label><input type="number" id="a-trans_fat" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Ingredients</label><textarea id="a-ingredients" rows="2"
+                            style="width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.2); color: white; border: 1px solid var(--border-color);"></textarea>
+                    </div>
                 </div>
 
                 <!-- PRODUCT B -->
                 <div class="product-col">
                     <h3>Product B (Values / serving)</h3>
                     <div style="margin-bottom: 15px; text-align: center;">
-                        <label for="imgB" style="cursor: pointer; color: var(--primary-color);">📸 <u>Upload Label B (OCR)</u></label>
+                        <label for="imgB" style="cursor: pointer; color: var(--primary-color);">📸 <u>Upload Label B
+                                (OCR)</u></label>
                         <input type="file" id="imgB" class="hidden" accept="image/*">
-                        <div id="loadingB" class="hidden" style="font-size: 0.85rem; color: #94a3b8; margin-top: 5px;">Extracting...</div>
+                        <div id="loadingB" class="hidden" style="font-size: 0.85rem; color: #94a3b8; margin-top: 5px;">
+                            Extracting...</div>
                     </div>
-                    <div class="input-group"><label>Sugar (g)</label><input type="number" id="b-sugar" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Sat Fat (g)</label><input type="number" id="b-sat_fat" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Sodium (mg)</label><input type="number" id="b-sodium" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Fiber (g)</label><input type="number" id="b-fiber" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Trans Fat</label><input type="number" id="b-trans_fat" value="0" step="0.1"></div>
-                    <div class="input-group"><label>Ingredients</label><textarea id="b-ingredients" rows="2" style="width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.2); color: white; border: 1px solid var(--border-color);"></textarea></div>
+                    <div class="input-group"><label>Sugar (g)</label><input type="number" id="b-sugar" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Sat Fat (g)</label><input type="number" id="b-sat_fat" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Sodium (mg)</label><input type="number" id="b-sodium" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Fiber (g)</label><input type="number" id="b-fiber" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Trans Fat</label><input type="number" id="b-trans_fat" value="0"
+                            step="0.1"></div>
+                    <div class="input-group"><label>Ingredients</label><textarea id="b-ingredients" rows="2"
+                            style="width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.2); color: white; border: 1px solid var(--border-color);"></textarea>
+                    </div>
                 </div>
             </div>
 
-            <button id="btnAnalyze" class="analyze-btn" style="margin-top: 25px; width: 100%;">Evaluate Combination</button>
+            <button id="btnAnalyze" class="analyze-btn" style="margin-top: 25px; width: 100%;">Evaluate
+                Combination</button>
             <div id="loading" class="loading-section hidden">
-                <div class="spinner"></div><p>Calculating cumulative impact...</p>
+                <div class="spinner"></div>
+                <p>Calculating cumulative impact...</p>
             </div>
         </div>
 
         <div id="step-results" class="screen hidden">
             <h1 class="results-title">Combination Verdict</h1>
-            
+
             <div class="split-grid" style="margin-bottom: 20px;">
-                <div class="glass-card" style="padding: 15px; text-align: center;">Target A<br><strong id="verdictA">...</strong></div>
-                <div class="glass-card" style="padding: 15px; text-align: center;">Target B<br><strong id="verdictB">...</strong></div>
+                <div class="glass-card" style="padding: 15px; text-align: center;">Target A<br><strong
+                        id="verdictA">...</strong></div>
+                <div class="glass-card" style="padding: 15px; text-align: center;">Target B<br><strong
+                        id="verdictB">...</strong></div>
             </div>
 
             <div id="statusBox" class="status-box glass-card primary-verdict" style="margin-bottom: 20px;">
                 <p style="margin:0 0 5px; font-size: 0.9rem; color: #cbd5e1;">CUMULATIVE RESULT</p>
-                <h2 id="statusText">SAFE</h2>
+                <h2 class="result-badge">SAFE</h2>
             </div>
-            
-            <div class="details-box personalized-box glass-card" style="margin-bottom: 20px; text-align: left; border: 1px solid var(--primary-color);">
+
+            <div class="details-box personalized-box glass-card"
+                style="margin-bottom: 20px; text-align: left; border: 1px solid var(--primary-color);">
                 <h3 style="margin-top: 0; color: var(--primary-color);">👤 Profile Impact</h3>
                 <ul id="personalizedList"></ul>
             </div>
 
             <div class="details-box ingredients-box glass-card" style="margin-bottom: 20px; text-align: left;">
-                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;"><span style="font-size: 1.2rem;">🌿</span> Combined Ingredients</h3>
+                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;"><span
+                        style="font-size: 1.2rem;">🌿</span> Combined Ingredients</h3>
                 <ul id="ingredientsList"></ul>
             </div>
 
@@ -102,17 +149,17 @@
                 document.getElementById(loadId).classList.remove("hidden");
                 const fd = new FormData(); fd.append("image", file);
                 try {
-                    const res = await fetch("/extract-text", {method: "POST", body: fd});
+                    const res = await fetch("/extract-text", { method: "POST", body: fd });
                     const data = await res.json();
                     if (data.nutrition) {
-                        document.getElementById(pfx+"-sugar").value = data.nutrition.sugar || 0;
-                        document.getElementById(pfx+"-sat_fat").value = data.nutrition.sat_fat || 0;
-                        document.getElementById(pfx+"-sodium").value = data.nutrition.sodium || 0;
-                        document.getElementById(pfx+"-fiber").value = data.nutrition.fiber || 0;
-                        document.getElementById(pfx+"-trans_fat").value = data.nutrition.trans_fat || 0;
-                        document.getElementById(pfx+"-ingredients").value = data.nutrition.ingredients || "";
+                        document.getElementById(pfx + "-sugar").value = data.nutrition.sugar || 0;
+                        document.getElementById(pfx + "-sat_fat").value = data.nutrition.sat_fat || 0;
+                        document.getElementById(pfx + "-sodium").value = data.nutrition.sodium || 0;
+                        document.getElementById(pfx + "-fiber").value = data.nutrition.fiber || 0;
+                        document.getElementById(pfx + "-trans_fat").value = data.nutrition.trans_fat || 0;
+                        document.getElementById(pfx + "-ingredients").value = data.nutrition.ingredients || "";
                     }
-                } catch(err) { alert("OCR Extraction Failed."); }
+                } catch (err) { alert("OCR Extraction Failed."); }
                 document.getElementById(loadId).classList.add("hidden");
                 // Reset file input so user can re-upload same file if they want to
                 document.getElementById(imgId).value = "";
@@ -126,24 +173,24 @@
             document.getElementById("loading").classList.remove("hidden");
 
             const getVals = (pfx) => ({
-                sugar: parseFloat(document.getElementById(pfx+"-sugar").value)||0,
-                sat_fat: parseFloat(document.getElementById(pfx+"-sat_fat").value)||0,
-                sodium: parseFloat(document.getElementById(pfx+"-sodium").value)||0,
-                fiber: parseFloat(document.getElementById(pfx+"-fiber").value)||0,
-                trans_fat: parseFloat(document.getElementById(pfx+"-trans_fat").value)||0,
-                ingredients: document.getElementById(pfx+"-ingredients").value
+                sugar: parseFloat(document.getElementById(pfx + "-sugar").value) || 0,
+                sat_fat: parseFloat(document.getElementById(pfx + "-sat_fat").value) || 0,
+                sodium: parseFloat(document.getElementById(pfx + "-sodium").value) || 0,
+                fiber: parseFloat(document.getElementById(pfx + "-fiber").value) || 0,
+                trans_fat: parseFloat(document.getElementById(pfx + "-trans_fat").value) || 0,
+                ingredients: document.getElementById(pfx + "-ingredients").value
             });
 
             const res = await fetch("/analyze-combination", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ item_a: getVals('a'), item_b: getVals('b') })
             });
             const data = await res.json();
-            
+
             document.getElementById("verdictA").innerText = data.verdict_a.toUpperCase();
             document.getElementById("verdictB").innerText = data.verdict_b.toUpperCase();
-            
+
             const sb = document.getElementById("statusBox");
             sb.className = "status-box glass-card primary-verdict status-" + data.combined_verdict.toLowerCase();
             document.getElementById("statusText").innerText = data.combined_verdict.toUpperCase();
@@ -173,7 +220,7 @@
 
             document.getElementById("loading").classList.add("hidden");
             document.getElementById("btnAnalyze").classList.remove("hidden");
-            
+
             document.getElementById("step-upload").classList.add("hidden");
             document.getElementById("step-results").classList.remove("hidden");
         });
@@ -184,4 +231,5 @@
         });
     </script>
 </body>
+
 </html>

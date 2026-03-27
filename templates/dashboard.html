@@ -1,41 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Smart Food Analyzer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
-        .card-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 40px 20px; cursor: pointer; text-decoration: none; color: white; transition: 0.3s;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
         }
-        .card-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .card-btn h2 { margin: 0 0 10px 0; font-size: 1.3rem; }
-        .card-btn p { color: #94a3b8; margin: 0; font-size: 0.95rem; }
-        .logout { position: absolute; top: 20px; right: 20px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; }
-        .logout:hover { color: white; }
+
+        .card-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+
+            padding: 40px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #1f2937;
+
+            transition: all 0.3s ease;
+        }
+
+        .card-btn:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border-color: #22c55e;
+        }
+
+        .card-btn h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+        }
+
+        .card-btn p {
+            color: #94a3b8;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .logout:hover {
+            color: white;
+        }
     </style>
 </head>
+
 <body>
     <a href="/logout" class="logout">Log out</a>
-    <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
-        <h1 style="font-size: 2.2rem; margin-bottom: 5px;">Welcome, {{ user.split("@")[0] }}!</h1>
-        <p class="subtitle">Select an analysis mode to get started.</p>
-        
+    <div class="container"
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 10px;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px; letter-spacing: 1px;">
+            Welcome, {{ user.split("@")[0] }}!
+        </h1>
+
+        <p class="subtitle" style="font-size: 1rem; margin-bottom: 20px;">
+            Select an analysis mode to get started.
+        </p>
         <div class="grid" style="max-width: 600px; width: 100%;">
+
             <a href="/single" class="card-btn glass-card" style="text-align: center;">
-                <h2>🧾 Analyze Single Product</h2>
-                <p>Upload a label to get a detailed nutritional breakdown.</p>
+                <h2>🔍 Analyze Product</h2>
+                <p>Upload a food label and get instant health insights</p>
             </a>
-            
+
             <a href="/compare" class="card-btn glass-card" style="text-align: center;">
-                <h2>🔗 Compare Two Products</h2>
-                <p>Evaluate the combined health impact of multiple foods.</p>
+                <h2>⚖️ Compare Products</h2>
+                <p>Compare multiple items and check combined health impact</p>
             </a>
+
         </div>
     </div>
 </body>
+
 </html>

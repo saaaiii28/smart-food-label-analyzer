@@ -1,20 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Food Analyzer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .nav-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+    </style>
 </head>
+
 <body>
+
+
+    <a href="/dashboard" class="nav-link">&larr; Back to Dashboard</a>
 
     <div class="container">
         <!-- STEP 0: Upload Screen -->
         <div id="step-upload" class="screen glass-card" style="padding: 25px; border-radius: 16px;">
             <h1>Smart Food Label Analyzer</h1>
+
             <p class="subtitle">Upload a nutrition label to instantly assess its health impact</p>
-            
+
             <div class="upload-box" id="dropzone">
                 <label for="imageUpload" class="upload-label">
                     <span class="icon">📄</span>
@@ -23,7 +43,7 @@
                 </label>
                 <input type="file" id="imageUpload" class="hidden" accept="image/*">
             </div>
-            
+
             <div id="loadingUpload" class="loading-section hidden">
                 <div class="spinner"></div>
                 <p>Extracting nutrition data...</p>
@@ -34,7 +54,7 @@
         <div id="step-confirm" class="screen hidden glass-card" style="padding: 25px; border-radius: 16px;">
             <h1>Detected Nutrition Data</h1>
             <p class="subtitle">Review and edit the extracted values</p>
-            
+
             <form id="nutritionForm" class="nutrition-form">
                 <div class="input-group">
                     <label>Sugar (g)</label>
@@ -59,8 +79,10 @@
             </form>
 
             <div class="ingredients-container" style="text-align: left; margin-bottom: 20px;">
-                <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 5px;">Ingredients List</label>
-                <textarea id="val-ingredients" rows="4" style="width: 100%; padding: 10px; border-radius: 6px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); resize: vertical; font-size: 0.9rem;"></textarea>
+                <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-bottom: 5px;">Ingredients
+                    List</label>
+                <textarea id="val-ingredients" rows="4"
+                    style="width: 100%; padding: 10px; border-radius: 6px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); resize: vertical; font-size: 0.9rem;"></textarea>
             </div>
 
             <div class="raw-text-container">
@@ -82,15 +104,18 @@
         <div id="step-results" class="screen hidden">
             <h1 class="results-title" style="margin-bottom: 5px;">Final Health Verdict</h1>
             <p class="subtitle" style="margin-bottom: 20px;">Based on nutrient values and ingredient analysis</p>
-            
+
             <!-- Health Status Box -->
             <div id="statusBox" class="status-box glass-card primary-verdict">
                 <h2 id="statusText">SAFE</h2>
             </div>
-            
+
             <!-- Health Bar -->
-            <div class="health-bar-container glass-card" style="margin-bottom: 20px; padding: 15px; border-radius: 12px;">
-                <div id="healthScoreLabel" class="health-score-label" style="text-align: left; font-size: 1.1rem; margin-top: 0; margin-bottom: 12px;">Health Score: 0/100</div>
+            <div class="health-bar-container glass-card"
+                style="margin-bottom: 20px; padding: 15px; border-radius: 12px;">
+                <div id="healthScoreLabel" class="health-score-label"
+                    style="text-align: left; font-size: 1.1rem; margin-top: 0; margin-bottom: 12px;">Health Score: 0/100
+                </div>
                 <div class="health-bar-track">
                     <div id="healthMarker" class="health-bar-marker"></div>
                 </div>
@@ -103,38 +128,52 @@
 
             <!-- Explanations -->
             <div class="details-box explanations-box glass-card" style="margin-bottom: 20px;">
-                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;"><span style="font-size: 1.2rem;">🔍</span> Why this result?</h3>
+                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;"><span
+                        style="font-size: 1.2rem;">🔍</span> Why this result?</h3>
                 <ul id="explanationsList"></ul>
             </div>
 
             <!-- Ingredient Insights -->
             <div class="details-box ingredients-box glass-card" style="margin-bottom: 20px; text-align: left;">
-                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;"><span style="font-size: 1.2rem;">🌿</span> Ingredient Analysis</h3>
+                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;"><span
+                        style="font-size: 1.2rem;">🌿</span> Ingredient Analysis</h3>
                 <ul id="ingredientsList"></ul>
             </div>
 
             <!-- Personalized Insight -->
-            <div class="details-box personalized-box glass-card" style="margin-bottom: 20px; text-align: left; border: 1px solid var(--primary-color);">
-                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px; color: var(--primary-color);"><span style="font-size: 1.2rem;">👤</span> Personalized Profile Match</h3>
+            <div class="details-box personalized-box glass-card"
+                style="margin-bottom: 20px; text-align: left; border: 1px solid var(--primary-color);">
+                <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px; color: var(--primary-color);">
+                    <span style="font-size: 1.2rem;">👤</span> Personalized Profile Match
+                </h3>
                 <ul id="personalizedList"></ul>
             </div>
 
             <!-- ML Insight -->
             <div class="details-box ml-box glass-card secondary-card">
-                <h3 style="margin-top: 0; font-size: 0.95rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;"><span style="font-size: 1rem;">🤖</span> AI Insight</h3>
-                <p style="margin: 5px 0 2px; font-size: 0.95rem;">Model suggests <strong id="mlInsightText" style="color: #e2e8f0;">some moderate risk indicators</strong></p>
-                <p style="margin: 0 0 10px; font-size: 0.85rem; color: #64748b;">Confidence: <strong id="mlConfidenceText" style="color: #cbd5e1;">82%</strong></p>
-                <div style="font-size: 0.75rem; color: #475569; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                    <p style="margin: 0 0 4px;">AI detects patterns from nutritional data. Ingredient analysis is rule-based.</p>
+                <h3
+                    style="margin-top: 0; font-size: 0.95rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 1rem;">🤖</span> AI Insight
+                </h3>
+                <p style="margin: 5px 0 2px; font-size: 0.95rem;">Model suggests <strong id="mlInsightText"
+                        style="color: #e2e8f0;">some moderate risk indicators</strong></p>
+                <p style="margin: 0 0 10px; font-size: 0.85rem; color: #64748b;">Confidence: <strong
+                        id="mlConfidenceText" style="color: #cbd5e1;">82%</strong></p>
+                <div
+                    style="font-size: 0.75rem; color: #475569; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                    <p style="margin: 0 0 4px;">AI detects patterns from nutritional data. Ingredient analysis is
+                        rule-based.</p>
                     <em>This is a predictive model and may differ from rule-based evaluation.</em>
                 </div>
             </div>
 
-            <button id="btnScanAnother" class="analyze-btn secondary" style="margin-top: 25px;">Scan Another Label</button>
+            <button id="btnScanAnother" class="analyze-btn secondary" style="margin-top: 25px;">Scan Another
+                Label</button>
         </div>
 
     </div>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
+
 </html>
